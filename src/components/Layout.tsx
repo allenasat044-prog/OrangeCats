@@ -18,6 +18,7 @@ export default function Layout() {
               <NavLink to="/dashboard">Dashboard</NavLink>
               <NavLink to="/analysis">Analysis</NavLink>
               <NavLink to="/runbook">Runbook</NavLink>
+              <NavLink to="/evidence">Evidence</NavLink>
             </>
           )}
           <NavLink to="/faq">FAQs</NavLink>
@@ -41,7 +42,7 @@ export default function Layout() {
           <Outlet />
         </div>
       </main>
-      <footer className="footer">Linux server administration project for hospital staff access, storage and backup.</footer>
+      <footer className="footer">Server administration project for hospital staff access, storage and backup.</footer>
     </div>
   );
 }

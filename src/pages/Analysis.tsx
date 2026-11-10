@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { folders, modeFor, roles, stages, type Role } from "../data";
+import { aclRights, folders, roles, stages, type Role } from "../data";
 
 const label = { rw: "Read and write", r: "Read only", none: "No access" } as const;
 
@@ -30,7 +30,7 @@ export default function Analysis() {
           <tbody>
             {folders.map((f) => (
               <tr key={f.id}>
-                <td><code>/hospital/{f.id}</code></td>
+                <td><code>/Volumes/hospital/{f.id}</code></td>
                 {roles.map((r) => (
                   <td key={r.id} className={`cell ${f.access[r.id]}`}>{label[f.access[r.id]]}</td>
                 ))}
@@ -63,7 +63,11 @@ export default function Analysis() {
         <h2>ACL commands generated from the matrix</h2>
         <pre>
           {folders
-            .flatMap((f) => roles.map((r) => `sudo setfacl -m g:${r.id}:${modeFor[f.access[r.id]]} /hospital/${f.id}`))
+            .flatMap((f) =>
+              roles
+                .filter((r) => aclRights[f.access[r.id]])
+                .map((r) => `sudo chmod +a "group:${r.id} allow ${aclRights[f.access[r.id]]}" /Volumes/hospital/${f.id}`)
+            )
             .join("\n")}
         </pre>
       </section>

@@ -91,3 +91,12 @@
     .page { padding: 24px 20px; border-radius: 2rem; }
   }
 }
+
+@layer components {
+  .pill { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; padding: 3px 12px; border-radius: 9999px; margin-right: 6px; vertical-align: middle; border: 1px solid transparent; }
+  .pill.pass { background: #ccff00; color: #000; border-color: #000; }
+  .pill.fail { background: #d6342b; color: #fff; }
+  .pill.none { background: #eef1f4; color: #5b6672; border-color: #c9d0d8; }
+  .page details[open] > summary { margin-bottom: 8px; }
+  .page details pre { margin-top: 8px; max-height: 420px; overflow: auto; }
+}

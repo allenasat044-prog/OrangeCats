@@ -89,6 +89,7 @@ export const Component = () => {
             { label: "Dashboard", to: "/dashboard" },
             { label: "Analysis", to: "/analysis" },
             { label: "Runbook", to: "/runbook" },
+            { label: "Evidence", to: "/evidence" },
             { label: "FAQs", to: "/faq" },
           ].map((item) => (
             <Link key={item.to} to={item.to} className="px-4 py-1.5 rounded-full border border-white/30 text-white text-xs font-semibold hover:bg-white/10 transition-colors">
@@ -189,7 +190,7 @@ export const Component = () => {
                 </div>
                 <div className="text-left">
                   <p className="text-[10px] font-bold leading-none">group: doctors</p>
-                  <p className="text-[8px] text-white/70 leading-none mt-1">useradd -G doctors</p>
+                  <p className="text-[8px] text-white/70 leading-none mt-1">dseditgroup -a</p>
                 </div>
               </div>
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#CCFF00] text-black font-black text-[10px] px-3 py-2 rounded-xl z-20 shadow-md">
@@ -216,7 +217,7 @@ export const Component = () => {
                   rwx
                 </div>
                 <div className="font-bold text-xs px-4">
-                  setfacl
+                  chmod +a
                 </div>
               </div>
 
@@ -237,12 +238,12 @@ export const Component = () => {
               BACK UP<br />EVERY NIGHT
             </h3>
             <p className="text-[10px] md:text-xs text-black/60 font-bold mb-auto">
-              cron archives the patient records every day
+              launchd archives the hospital data every day
             </p>
 
             <div className="flex flex-col items-center bg-[#CCFF00] rounded-[2rem] px-6 py-4 text-black shadow-lg mt-6 relative w-full max-w-[200px]">
-              <p className="text-[9px] font-bold uppercase tracking-wider mb-1">Cron schedule</p>
-              <p className="text-xl font-black">0 2 * * *</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider mb-1">Backup schedule</p>
+              <p className="text-xl font-black">02:00 daily</p>
 
               <div className="absolute -bottom-2 left-8 w-5 h-5 bg-[#CCFF00] transform rotate-45"></div>
             </div>

@@ -72,7 +72,7 @@ else
 fi
 
 ssh_out="$(/usr/sbin/sshd -T -C user=root,host=localhost,addr=127.0.0.1 2>&1 || true)"
-if echo "$ssh_out" | grep -q '^permitrootlogin no'; then
+if echo "$ssh_out" | grep -qi '^permitrootlogin no'; then
   pass "SSH root login is disabled"
 elif grep -q '^PermitRootLogin no' /etc/ssh/sshd_config.d/100-hospital.conf 2> /dev/null && /usr/sbin/sshd -t 2> /dev/null; then
   pass "SSH root login is disabled (read from the config file, sshd -T gave no output)"

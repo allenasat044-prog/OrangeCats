@@ -38,6 +38,12 @@ CONF
     if /usr/sbin/sshd -t; then
       echo "SSH hardening applied."
       echo "Allowed users: $ALLOWED"
+      if dscl . -read /Groups/com.apple.access_ssh > /dev/null 2>&1; then
+        for u in $ALLOWED; do
+          dseditgroup -o edit -a "$u" -t user com.apple.access_ssh
+        done
+        echo "Allowed users added to the macOS SSH access group."
+      fi
     else
       rm -f "$DROPIN"
       echo "The SSH configuration was invalid and has been removed." >&2
@@ -46,11 +52,16 @@ CONF
     ;;
   remove)
     rm -f "$DROPIN"
+    if dscl . -read /Groups/com.apple.access_ssh > /dev/null 2>&1; then
+      for u in $ALLOWED; do
+        dseditgroup -o edit -d "$u" -t user com.apple.access_ssh > /dev/null 2>&1 || true
+      done
+    fi
     echo "SSH hardening removed."
     ;;
   status)
     out="$(/usr/sbin/sshd -T -C user=root,host=localhost,addr=127.0.0.1 2>&1 || true)"
-    if ! echo "$out" | grep -E '^(permitrootlogin|permitemptypasswords|maxauthtries|logingracetime|x11forwarding|clientaliveinterval|clientalivecountmax|allowusers) '; then
+    if ! echo "$out" | grep -i -E '^(permitrootlogin|permitemptypasswords|maxauthtries|logingracetime|x11forwarding|clientaliveinterval|clientalivecountmax|allowusers) '; then
       echo "sshd -T did not list the settings. Its output was:"
       echo "$out" | head -n 5
       echo

@@ -6,6 +6,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Analysis from "./pages/Analysis";
 import Runbook from "./pages/Runbook";
+import Evidence from "./pages/Evidence";
 import FAQ from "./pages/FAQ";
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/analysis" element={<Analysis />} />
           <Route path="/runbook" element={<Runbook />} />
+          <Route path="/evidence" element={<Evidence />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
