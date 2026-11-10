@@ -19,6 +19,11 @@ export default function Analysis() {
       <h1>Analysis</h1>
 
       <section>
+        <h2>Architecture</h2>
+        <img src="/architecture.svg" alt="Architecture of the hospital IT server" style={{ width: "100%", height: "auto" }} />
+      </section>
+
+      <section>
         <h2>Access matrix</h2>
         <table>
           <thead>

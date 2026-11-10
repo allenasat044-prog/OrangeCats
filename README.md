@@ -1,26 +1,103 @@
 # Hospital IT Server Console
 
-Hackathon project 2: a hospital IT department needs one server for doctors, nurses and administration staff, each with their own accounts and only the folder access their job needs.
+A hospital IT department needs one server for doctors, nurses and administration staff. Each group gets its own accounts and only the folder access its job needs, with scheduled backups, a firewall and hardened SSH. This repository holds the complete server build and a web console that shows the build with real terminal output as evidence.
 
-This repository holds two things:
+![Architecture of the hospital IT server](docs/architecture.png)
 
-1. The server build, as scripts and commands for every stage (macOS, Linux and Windows).
-2. A web console (Vite, React, TypeScript, Tailwind) that documents the build: landing page, sign in, dashboard, analysis, runbook and FAQs.
+## Contents
 
-**Tested on:** macOS (Apple Silicon). The Linux and Windows sections give the equivalent commands for those systems.
+1. [At a glance](#at-a-glance)
+2. [Architecture](#architecture)
+3. [How it maps to the hackathon tasks](#how-it-maps-to-the-hackathon-tasks)
+4. [Folder access](#folder-access)
+5. [Repository layout](#repository-layout)
+6. [Prerequisites](#prerequisites)
+7. [Run the web console](#run-the-web-console)
+8. [Server setup, stage by stage](#server-setup-stage-by-stage)
+9. [Evidence page](#evidence-page)
+10. [Presentation guide](#presentation-guide)
+11. [Troubleshooting](#troubleshooting)
+12. [Undo everything](#undo-everything-macos)
+13. [Verification status and limits](#verification-status-and-limits)
 
-## What the server delivers
+## At a glance
 
-| Requirement | macOS (built and tested) | Linux (Ubuntu) | Windows (PowerShell) |
-|---|---|---|---|
-| Hostname and network | `scutil`, `networksetup` | `hostnamectl`, `ip` | `Rename-Computer`, `Get-NetIPConfiguration` |
-| Users and groups | `dscl`, `dseditgroup` | `useradd`, `groupadd` | `New-LocalUser`, `New-LocalGroup` |
-| Expandable storage | sparse disk image | LVM | VHDX volume |
-| Folder permissions | `chmod +a` ACLs | `setfacl` | `icacls` |
-| Scheduling | `launchd` | `cron` | Task Scheduler |
-| Backup and verify | `tar` and `shasum` | `tar` and `sha256sum` | `Compress-Archive` and `Get-FileHash` |
-| Firewall | `pf` | `ufw` | Windows Defender Firewall |
-| Remote access | `sshd` drop-in file | `sshd` drop-in file | OpenSSH Server |
+| | |
+|---|---|
+| Scenario | Hospital IT department (problem statement 2) |
+| Server | macOS, hostname `hospital-srv01` |
+| Roles | doctors, nurses, administration (`hosp_admin`) |
+| Sample users | `dr_asha`, `dr_ravi`, `nurse_meera`, `nurse_john`, `admin_priya`, `admin_kiran` |
+| Storage | 2 GB sparse disk image mounted at `/Volumes/hospital` |
+| Backups | daily at 02:00, SHA-256 checked, last 7 kept, restore script |
+| Security | `pf` firewall, SSH hardening, permission audit |
+| Console | Vite, React, TypeScript, Tailwind, with an Evidence page fed by the terminal |
+
+## Architecture
+
+The server holds four building blocks that depend on each other: security decides who can connect, identity decides who they are, storage decides what each group can touch, and automation protects the data. The console never runs commands. It only reads `public/evidence.json`, which `collect_evidence.sh` writes from the real state of the server.
+
+```mermaid
+flowchart TD
+  staff["Hospital staff<br/>doctors, nurses, administration"] -->|"SSH port 22, local network only"| sec
+  subgraph server["macOS server hospital-srv01"]
+    sec["1. Security<br/>pf firewall, sshd hardening, SSH access list"]
+    ident["2. Identity<br/>groups doctors, nurses, hosp_admin<br/>6 standard users"]
+    store["3. Storage and ACLs<br/>disk image at /Volumes/hospital<br/>4 folders with chmod +a rules"]
+    auto["4. Automation launchd<br/>02:00 backup, hourly disk check"]
+    bk["Backup store<br/>tar.gz and SHA-256, last 7"]
+    sec --> ident
+    ident -->|"groups drive the ACLs"| store
+    store -->|"read by"| auto
+    auto -->|"backup"| bk
+    bk -->|"restore"| store
+  end
+  collect["collect_evidence.sh<br/>29 checks"] -->|"reads real state"| server
+  collect -->|"writes"| json["public/evidence.json"]
+  json -->|"fetched every 4 s"| web["Web console<br/>Landing, Dashboard, Analysis, Runbook, Evidence, FAQs"]
+  judges["Presenter and judges"] --> web
+```
+
+What happens when a nurse tries to write a patient record:
+
+```mermaid
+sequenceDiagram
+  participant N as Nurse
+  participant FW as pf firewall
+  participant SSH as sshd
+  participant FS as /Volumes/hospital
+  N->>FW: connect to port 22
+  FW->>SSH: allowed because it comes from the local network
+  SSH->>SSH: AllowUsers and SSH access list check
+  SSH->>N: shell as nurse_meera
+  N->>FS: write to patient-records
+  FS-->>N: Permission denied, the ACL gives nurses read only
+```
+
+| Component | Technology | Why |
+|---|---|---|
+| Accounts and groups | `dscl`, `dseditgroup` | Native macOS directory tools |
+| Storage | Sparse disk image, APFS, ownership on | Separate volume that can be resized and unmounted, the macOS stand-in for LVM |
+| Folder permissions | `chmod +a` ACLs | One folder, different rights per group |
+| Scheduling | `launchd` | Native replacement for cron, runs missed jobs after sleep |
+| Backup integrity | `tar`, `shasum` | A checksum is stored and checked after every backup |
+| Firewall | `pf` with its own anchor | Blocks inbound traffic except SSH from the local network, rolls back if the network breaks |
+| Remote access | `sshd_config.d` drop-in | Root off, three tries, named users, macOS SSH access list |
+| Evidence | `collect_evidence.sh` to `evidence.json` | Real output for the console, because a web page cannot run commands |
+
+## How it maps to the hackathon tasks
+
+| Hackathon task | What was built | Where |
+|---|---|---|
+| 1. Linux system configuration | Hostname, network check, update check, packages | Stage 1 |
+| 2. User and group administration | 3 groups, 6 users, passwords, private homes, ownership | Stage 2 |
+| 3. Storage management | Disk image volume, mount, 4 shared folders | Stage 3 |
+| 4. Automation | Backup, verify, restore and disk-check scripts scheduled with launchd | Stage 4 |
+| 5. Backup and recovery | Dated archives, SHA-256 check, delete and restore demo | Stages 4 and 6 |
+| 6. Security | Firewall, SSH hardening, permission and ACL audit | Stage 5 |
+| 7. Testing and troubleshooting | Role tests, simulated storage failure and fix, Evidence page | Stage 6 and Evidence |
+
+The scenario is built and tested on macOS. The Linux and Windows commands in each stage reproduce the same design on those systems.
 
 ## Folder access
 
@@ -31,11 +108,53 @@ This repository holds two things:
 | billing | none | none | read and write |
 | announcements | read | read | read and write |
 
-The administration group is called `hosp_admin` because macOS already has a group named `admin` that grants full administrator rights. On Linux the commands below use `admin`, and on Windows `hosp_admin`.
+The administration group is called `hosp_admin` because macOS already has a group named `admin` that grants full administrator rights. On Linux the commands use `admin`, and on Windows `hosp_admin`.
 
-Sample users: `dr_asha`, `dr_ravi` (doctors), `nurse_meera`, `nurse_john` (nurses), `admin_priya`, `admin_kiran` (administration).
+## Repository layout
+
+```
+README.md                         this file
+docs/architecture.svg             architecture diagram, vector
+docs/architecture.png             architecture diagram, for slides
+linux/create_users.sh             Linux user and group script
+public/architecture.svg           diagram shown on the Analysis page
+public/evidence.json              real terminal output, written by collect_evidence.sh
+src/App.tsx                       routes
+src/auth.tsx                      browser-only sign in
+src/data.ts                       stages, roles, folders, FAQs
+src/evidence.ts                   loads evidence.json
+src/pages/                        Landing, Auth, Dashboard, Analysis, Runbook, Evidence, FAQ
+src/components/                   Layout, Protected, ui/hero.tsx
+src/scripts/mac/create_users.sh        Stage 2: groups and users
+src/scripts/mac/remove_users.sh        Stage 2: undo
+src/scripts/mac/setup_storage.sh       Stage 3: disk image, folders, ACLs
+src/scripts/mac/teardown_storage.sh    Stage 3: undo
+src/scripts/mac/install_automation.sh  Stage 4: installs and schedules the jobs
+src/scripts/mac/hospital_backup.sh     Stage 4: backup
+src/scripts/mac/hospital_verify.sh     Stage 4: integrity check
+src/scripts/mac/hospital_disk_check.sh Stage 4: 80% warning
+src/scripts/mac/uninstall_automation.sh Stage 4: undo
+src/scripts/mac/firewall.sh            Stage 5: pf firewall
+src/scripts/mac/harden_ssh.sh          Stage 5: SSH hardening
+src/scripts/mac/permission_audit.sh    Stage 5: audit
+src/scripts/mac/hospital_restore.sh    Stage 6: restore
+src/scripts/mac/role_tests.sh          Stage 6: role matrix test
+src/scripts/mac/collect_evidence.sh    Evidence: 29 checks to evidence.json
+```
+
+## Prerequisites
+
+| | macOS (tested) | Linux | Windows |
+|---|---|---|---|
+| System | macOS on Apple Silicon or Intel, an administrator account | Ubuntu 22.04 or 24.04 with sudo | Windows 10 or 11 Pro, PowerShell as Administrator |
+| Tools | Homebrew, Node.js 20 or newer | `apt`, Node.js 20 or newer for the console | Node.js 20 or newer for the console |
+| Free space | about 3 GB | about 3 GB | about 3 GB |
 
 ## Run the web console
+
+```
+cd ~/Desktop/hospital-it
+```
 
 ```
 npm install
@@ -46,17 +165,6 @@ npm run dev
 ```
 
 Open http://localhost:5173. Console accounts are stored in your own browser only.
-
-## Project layout
-
-```
-src/pages/              landing, sign in, dashboard, analysis, runbook, FAQs
-src/components/ui/      hero landing component
-src/scripts/mac/        every macOS server script, including collect_evidence.sh
-public/evidence.json    real terminal output, written by collect_evidence.sh
-linux/                  Linux user script
-README.md               this file
-```
 
 ## Server setup, stage by stage
 
@@ -592,15 +700,200 @@ sudo bash src/scripts/mac/collect_evidence.sh
 
 Run it again at any time to refresh. A web page cannot run commands itself, so this script is how terminal output reaches the site. The file holds your local IP address and username, so check it before you share it.
 
-## Demo script (about 8 minutes)
 
-1. Run `collect_evidence.sh`, then open the Evidence page: every stage shows its real output and a PASS badge. Show the access matrix on the Analysis page.
-2. Run the role tests. Every cell reads ok.
-3. As a nurse, try to write into patient-records: Permission denied. As a doctor, write a record: it works.
-4. Run a backup, then verify it: OK and the file count.
-5. Delete patient-records on purpose, then restore it. The record is back with its permissions.
-6. Detach the disk. The disk check warns, and the setup script brings the volume back.
-7. Show the firewall rules, try root over SSH (denied) and run the permission audit: All checks passed.
+## Presentation guide
+
+A run of about 12 minutes. Use two Terminal tabs, one for commands and one for `npm run dev`, and make the terminal font large.
+
+### 30 minutes before
+
+Run each command once and fix anything that fails. The last command opens the console.
+
+```
+cd ~/Desktop/hospital-it
+```
+
+```
+sudo -v
+```
+
+```
+sudo bash src/scripts/mac/setup_storage.sh
+```
+
+```
+sudo bash src/scripts/mac/firewall.sh on
+```
+
+```
+sudo systemsetup -setremotelogin on
+```
+
+```
+sudo bash src/scripts/mac/harden_ssh.sh apply
+```
+
+```
+sudo launchctl list | grep hospital
+```
+
+Start the console in the second tab:
+
+```
+cd ~/Desktop/hospital-it
+```
+
+```
+npm run dev
+```
+
+Back in the first tab, capture the evidence and open the site:
+
+```
+sudo bash src/scripts/mac/collect_evidence.sh
+```
+
+```
+open http://localhost:5173
+```
+
+Every line should say PASS. If one says FAIL, open its card on the Evidence page and use the Troubleshooting table below.
+
+Optional: show the server name in your prompt, and revert it afterward (see Undo):
+
+```
+sudo scutil --set HostName hospital-srv01
+```
+
+```
+sudo scutil --set LocalHostName hospital-srv01
+```
+
+### Running order
+
+| # | Minutes | Say | Run | Expect |
+|---|---|---|---|---|
+| 1 | 1 | "One server, three roles, four building blocks." | Show `docs/architecture.png` with `open docs/architecture.png` | The architecture diagram |
+| 2 | 1 | "Who gets what is a matrix, and the ACLs are generated from it." | Open the Analysis page, set the checker to Nurses, writes, Patient Records | Permission denied |
+| 3 | 1 | "Three groups and six standard users. None of them is an administrator." | `id nurse_meera` then `dseditgroup -o checkmember -m nurse_meera admin` | `nurses` in the group list, then `no` |
+| 4 | 1 | "Storage is its own volume with ownership switched on, and each folder has ACL rules." | `ls -led /Volumes/hospital/patient-records` | Two ACL lines, nurses read and doctors read and write |
+| 5 | 2 | "Now the real thing, as each role." | The four commands below | Denied, allowed, read back, denied |
+| 6 | 1 | "All six users against all four folders." | `sudo bash src/scripts/mac/role_tests.sh` | A table with ok in every cell |
+| 7 | 1 | "Backups are scheduled, but I can trigger one and verify it." | The three commands below | Backup created and verified, checksum OK |
+| 8 | 2 | "Disaster: I delete the patient records on purpose." | The restore commands below | Folder gone, then restored with permissions |
+| 9 | 1 | "The disk check warns at 80%. I lower the limit to show it." | `sudo /usr/local/hospital/bin/hospital_disk_check.sh 1` | Two WARNING lines |
+| 10 | 1 | "Security: firewall, root over SSH, and the audit." | The security commands below | Rules shown, root denied, All checks passed |
+| 11 | 1 | "Everything I just showed is recorded here, with real output." | Open the Evidence page | Every stage with a PASS badge |
+
+Step 5, the live permissions:
+
+```
+sudo -u nurse_meera touch /Volumes/hospital/patient-records/test.txt
+```
+
+```
+echo 'Patient 002 admitted' | sudo -u dr_asha tee /Volumes/hospital/patient-records/patient002.txt
+```
+
+```
+sudo -u nurse_meera cat /Volumes/hospital/patient-records/patient002.txt
+```
+
+```
+sudo -u admin_priya ls /Volumes/hospital/patient-records
+```
+
+Step 7, backup and verify:
+
+```
+sudo launchctl kickstart -k system/com.hospital.backup
+```
+
+```
+sudo tail -n 2 /var/log/hospital-backup.log
+```
+
+```
+sudo /usr/local/hospital/bin/hospital_verify.sh
+```
+
+Step 8, delete and restore:
+
+```
+sudo rm -rf /Volumes/hospital/patient-records
+```
+
+```
+sudo ls /Volumes/hospital
+```
+
+```
+sudo bash src/scripts/mac/hospital_restore.sh
+```
+
+```
+sudo ls -led /Volumes/hospital/patient-records
+```
+
+```
+sudo -u nurse_meera cat /Volumes/hospital/patient-records/patient002.txt
+```
+
+Optional extra, a simulated storage failure and its fix:
+
+```
+sudo hdiutil detach /Volumes/hospital
+```
+
+```
+sudo /usr/local/hospital/bin/hospital_disk_check.sh
+```
+
+```
+sudo bash src/scripts/mac/setup_storage.sh
+```
+
+Step 10, security:
+
+```
+sudo bash src/scripts/mac/firewall.sh status
+```
+
+```
+ssh -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 root@localhost
+```
+
+```
+sudo bash src/scripts/mac/permission_audit.sh
+```
+
+### Likely questions
+
+| Question | Answer |
+|---|---|
+| Why macOS and not Linux? | The build was done on a Mac, so every Linux task uses its macOS equivalent. The README has the Linux and Windows commands for each stage. |
+| What replaces LVM? | A sparse disk image mounted as its own volume. It can be resized and unmounted, and ownership is on so permissions apply. |
+| Why is the group `hosp_admin` and not `admin`? | macOS already has an `admin` group with full administrator rights. Reusing it would make hospital staff administrators of the whole machine. |
+| How do you know a backup is good? | A SHA-256 checksum is stored with each archive and checked immediately, and the restore script checks it again before it restores anything. |
+| Why launchd and not cron? | launchd is the native scheduler on macOS and runs a missed job when the Mac wakes. |
+| What if the disk fills up? | An hourly check warns at 80%, the volume can be resized, and the backup store keeps only the last 7 archives. |
+| How would this scale to a real hospital? | The user script is a loop over a list, so more users are more lines. A real deployment would use a central directory service such as LDAP, and the same ACL design carries over. |
+| How safe is SSH here? | Root is off, there are three tries and a 60 second login window, only named users are allowed, and the firewall accepts SSH only from the local network. The sample password is weak on purpose for a demo, so the guide tells you to turn Remote Login off afterward. |
+| What went wrong along the way? | macOS keeps its own SSH access list that blocked standard users, and the first status check missed the setting because of upper and lower case. Both were found through the logs and fixed in the scripts. |
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `/Volumes/hospital` is missing or storage checks fail | The disk image is unmounted after a restart | `sudo bash src/scripts/mac/setup_storage.sh` |
+| Internet stops after the firewall step | pf rules blocked something | `sudo bash src/scripts/mac/firewall.sh off` |
+| Firewall status shows Disabled | pf rules are cleared by a restart | `sudo bash src/scripts/mac/firewall.sh on` |
+| SSH login closes right after the password | The user is not on the macOS SSH access list, or the password was mistyped | `sudo bash src/scripts/mac/harden_ssh.sh apply` and type the password promptly |
+| Evidence page shows no evidence | The collector has not been run | `sudo bash src/scripts/mac/collect_evidence.sh` |
+| Evidence shows FAIL for the restore log | No restore has been run yet | Run the Step 8 restore once |
+| `npm run dev` says the port is busy | An old dev server is still running | Close the other tab or run `lsof -i :5173` and stop that process |
+| `systemsetup` refuses to change Remote Login | Terminal lacks Full Disk Access | Turn on Remote Login in System Settings, General, Sharing |
+| Prompt still shows `hospital-srv01` | The shell started before the hostname changed | Open a new Terminal tab |
 
 ## Undo everything (macOS)
 
@@ -641,6 +934,24 @@ sudo scutil --set HostName "$(cat ~/hospital-setup/original_localhostname.txt)"
 ```
 sudo scutil --set LocalHostName "$(cat ~/hospital-setup/original_localhostname.txt)"
 ```
+
+
+## Verification status and limits
+
+| Item | Status |
+|---|---|
+| macOS Stages 1 to 6 | Run on a real Mac, results checked stage by stage |
+| `collect_evidence.sh` and the Evidence page | The JSON writer and the pass or fail logic were tested with sample checks. Run it on your Mac to produce the real evidence. |
+| Linux commands | `linux/create_users.sh` was run, and the backup and disk-check scripts were tested on Linux. The rest are standard commands that were not run in this project. |
+| Windows commands | Provided as equivalents and not run in this project |
+
+Known limits:
+
+- The disk image is unmounted after a restart. Run `setup_storage.sh` to mount it again.
+- `pf` rules are cleared by a restart. Run `firewall.sh on` again.
+- The sample users share one password. Use a strong one on a shared network.
+- Turning on Remote Login makes SSH reachable from the local network. Run the undo steps when you are finished.
+- Restored files get their ACLs from the folder. Per-file ACLs set by hand are not restored.
 
 ## Security note
 

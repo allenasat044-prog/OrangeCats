@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 760" width="1240" height="760" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker></defs>
+<rect width="1240" height="760" fill="#ffffff"/>
+<text x="40" y="34" font-size="22" font-weight="900" fill="#0a0a0a">HOSPITAL IT SERVER: ARCHITECTURE</text>
+<rect x="40" y="56" width="360" height="80" rx="18" fill="#F8F9FA" stroke="#0038FF" stroke-width="2.5"/>
+<text x="58" y="86" font-size="17" font-weight="800" fill="#0a0a0a">Hospital staff</text>
+<rect x="329" y="68" width="57" height="22" rx="11" fill="#CCFF00" stroke="#000" stroke-width="1.5"/>
+<text x="357.5" y="84" font-size="11" font-weight="800" text-anchor="middle" fill="#000">USERS</text>
+<text x="58" y="112" font-size="13.5" fill="#2b3640">Doctors, nurses and administration</text>
+<text x="58" y="133" font-size="13.5" fill="#2b3640">log in over SSH or use the shared folders</text>
+<rect x="900" y="56" width="300" height="80" rx="18" fill="#F8F9FA" stroke="#0038FF" stroke-width="2.5"/>
+<text x="918" y="86" font-size="17" font-weight="800" fill="#0a0a0a">Presenter / judges</text>
+<rect x="1122" y="68" width="64" height="22" rx="11" fill="#CCFF00" stroke="#000" stroke-width="1.5"/>
+<text x="1154.0" y="84" font-size="11" font-weight="800" text-anchor="middle" fill="#000">VIEWER</text>
+<text x="918" y="112" font-size="13.5" fill="#2b3640">Open the web console in a browser</text>
+<rect x="40" y="168" width="820" height="574" rx="26" fill="#EEF2FF" stroke="#0038FF" stroke-width="3" stroke-dasharray="10 6"/>
+<text x="470" y="200" font-size="16" font-weight="900" fill="#0038FF">macOS SERVER  (hostname hospital-srv01)</text>
+<rect x="60" y="214" width="370" height="150" rx="18" fill="#F8F9FA" stroke="#0038FF" stroke-width="2.5"/>
+<text x="78" y="244" font-size="17" font-weight="800" fill="#0a0a0a">1. Security</text>
+<rect x="345" y="226" width="71" height="22" rx="11" fill="#CCFF00" stroke="#000" stroke-width="1.5"/>
+<text x="380.5" y="242" font-size="11" font-weight="800" text-anchor="middle" fill="#000">STAGE 5</text>
+<text x="78" y="270" font-size="13.5" fill="#2b3640">pf firewall: SSH only, from the local network</text>
+<text x="78" y="291" font-size="13.5" fill="#2b3640">sshd: root login off, 3 tries, named users only</text>
+<text x="78" y="312" font-size="13.5" fill="#2b3640">macOS SSH access list for the hospital users</text>
+<rect x="470" y="214" width="370" height="150" rx="18" fill="#F8F9FA" stroke="#0038FF" stroke-width="2.5"/>
+<text x="488" y="244" font-size="17" font-weight="800" fill="#0a0a0a">2. Identity</text>
+<rect x="755" y="226" width="71" height="22" rx="11" fill="#CCFF00" stroke="#000" stroke-width="1.5"/>
+<text x="790.5" y="242" font-size="11" font-weight="800" text-anchor="middle" fill="#000">STAGE 2</text>
+<text x="488" y="270" font-size="13.5" fill="#2b3640">Groups: doctors, nurses, hosp_admin</text>
+<text x="488" y="291" font-size="13.5" fill="#2b3640">6 standard sample users, private homes</text>
+<text x="488" y="312" font-size="13.5" fill="#2b3640">dscl and dseditgroup create them</text>
+<rect x="60" y="404" width="370" height="170" rx="18" fill="#F8F9FA" stroke="#0038FF" stroke-width="2.5"/>
+<text x="78" y="434" font-size="17" font-weight="800" fill="#0a0a0a">3. Storage and ACLs</text>
+<rect x="345" y="416" width="71" height="22" rx="11" fill="#CCFF00" stroke="#000" stroke-width="1.5"/>
+<text x="380.5" y="432" font-size="11" font-weight="800" text-anchor="middle" fill="#000">STAGE 3</text>
+<text x="78" y="460" font-size="13.5" fill="#2b3640">2 GB sparse disk image, APFS, ownership on</text>
+<text x="78" y="481" font-size="13.5" fill="#2b3640">Mounted at /Volumes/hospital</text>
+<text x="78" y="502" font-size="13.5" fill="#2b3640">patient-records  nursing-notes</text>
+<text x="78" y="523" font-size="13.5" fill="#2b3640">billing  announcements</text>
+<text x="78" y="544" font-size="13.5" fill="#2b3640">chmod +a rules per group</text>
+<rect x="470" y="404" width="370" height="170" rx="18" fill="#F8F9FA" stroke="#0038FF" stroke-width="2.5"/>
+<text x="488" y="434" font-size="17" font-weight="800" fill="#0a0a0a">4. Automation (launchd)</text>
+<rect x="755" y="416" width="71" height="22" rx="11" fill="#CCFF00" stroke="#000" stroke-width="1.5"/>
+<text x="790.5" y="432" font-size="11" font-weight="800" text-anchor="middle" fill="#000">STAGE 4</text>
+<text x="488" y="460" font-size="13.5" fill="#2b3640">02:00 daily: hospital_backup.sh</text>
+<text x="488" y="481" font-size="13.5" fill="#2b3640">hourly: hospital_disk_check.sh (80% warning)</text>
+<text x="488" y="502" font-size="13.5" fill="#2b3640">hospital_verify.sh checks the SHA-256</text>
+<text x="488" y="523" font-size="13.5" fill="#2b3640">hospital_restore.sh brings data back</text>
+<rect x="60" y="626" width="370" height="100" rx="18" fill="#F4FFD0" stroke="#000" stroke-width="2.5"/>
+<text x="78" y="656" font-size="17" font-weight="800" fill="#0a0a0a">Backup store</text>
+<text x="78" y="682" font-size="13.5" fill="#2b3640">/Users/Shared/hospital-backups</text>
+<text x="78" y="703" font-size="13.5" fill="#2b3640">tar.gz + .sha256, last 7 kept, root only</text>
+<rect x="900" y="168" width="300" height="170" rx="18" fill="#F8F9FA" stroke="#0038FF" stroke-width="2.5"/>
+<text x="918" y="198" font-size="17" font-weight="800" fill="#0a0a0a">Web console</text>
+<rect x="1115" y="180" width="71" height="22" rx="11" fill="#CCFF00" stroke="#000" stroke-width="1.5"/>
+<text x="1150.5" y="196" font-size="11" font-weight="800" text-anchor="middle" fill="#000">STAGE 7</text>
+<text x="918" y="224" font-size="13.5" fill="#2b3640">Vite, React, TypeScript, Tailwind</text>
+<text x="918" y="245" font-size="13.5" fill="#2b3640">Landing, Sign in, Dashboard,</text>
+<text x="918" y="266" font-size="13.5" fill="#2b3640">Analysis, Runbook, Evidence, FAQs</text>
+<text x="918" y="287" font-size="13.5" fill="#2b3640">Reads /evidence.json every 4 s</text>
+<rect x="900" y="380" width="300" height="92" rx="18" fill="#F4FFD0" stroke="#000" stroke-width="2.5"/>
+<text x="918" y="410" font-size="17" font-weight="800" fill="#0a0a0a">public/evidence.json</text>
+<text x="918" y="436" font-size="13.5" fill="#2b3640">29 checks: command, real output,</text>
+<text x="918" y="457" font-size="13.5" fill="#2b3640">exit code, PASS or FAIL</text>
+<rect x="900" y="520" width="300" height="140" rx="18" fill="#F8F9FA" stroke="#0038FF" stroke-width="2.5"/>
+<text x="918" y="550" font-size="17" font-weight="800" fill="#0a0a0a">collect_evidence.sh</text>
+<rect x="1115" y="532" width="71" height="22" rx="11" fill="#CCFF00" stroke="#000" stroke-width="1.5"/>
+<text x="1150.5" y="548" font-size="11" font-weight="800" text-anchor="middle" fill="#000">STAGE 6</text>
+<text x="918" y="576" font-size="13.5" fill="#2b3640">Runs as root and reads the real</text>
+<text x="918" y="597" font-size="13.5" fill="#2b3640">state of the whole server,</text>
+<text x="918" y="618" font-size="13.5" fill="#2b3640">including role_tests.sh and</text>
+<text x="918" y="639" font-size="13.5" fill="#2b3640">permission_audit.sh</text>
+<path d="M 220 136 L 220 214" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<rect x="189.9" y="166" width="60.199999999999996" height="20" rx="10" fill="#fff" stroke="#c9d0d8"/>
+<text x="220.0" y="180" font-size="11.5" font-weight="700" text-anchor="middle" fill="#0038FF">SSH :22</text>
+<path d="M 430 289 L 470 289" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<path d="M 655 364 L 655 384 L 245 384 L 245 404" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<rect x="373.7" y="364" width="152.6" height="20" rx="10" fill="#fff" stroke="#c9d0d8"/>
+<text x="450.0" y="378" font-size="11.5" font-weight="700" text-anchor="middle" fill="#0038FF">groups drive the ACLs</text>
+<path d="M 430 489 L 470 489" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<rect x="426.5" y="464" width="47.0" height="20" rx="10" fill="#fff" stroke="#c9d0d8"/>
+<text x="450.0" y="478" font-size="11.5" font-weight="700" text-anchor="middle" fill="#0038FF">reads</text>
+<path d="M 655 574 L 655 676 L 430 676" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<rect x="518.2" y="656" width="53.599999999999994" height="20" rx="10" fill="#fff" stroke="#c9d0d8"/>
+<text x="545.0" y="670" font-size="11.5" font-weight="700" text-anchor="middle" fill="#0038FF">backup</text>
+<path d="M 150 626 L 150 574" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<rect x="119.9" y="592" width="60.199999999999996" height="20" rx="10" fill="#fff" stroke="#c9d0d8"/>
+<text x="150.0" y="606" font-size="11.5" font-weight="700" text-anchor="middle" fill="#0038FF">restore</text>
+<path d="M 1050 136 L 1050 168" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<path d="M 1050 380 L 1050 338" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<rect x="1026.5" y="351" width="47.0" height="20" rx="10" fill="#fff" stroke="#c9d0d8"/>
+<text x="1050.0" y="365" font-size="11.5" font-weight="700" text-anchor="middle" fill="#0038FF">fetch</text>
+<path d="M 1050 520 L 1050 472" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<rect x="1023.2" y="488" width="53.599999999999994" height="20" rx="10" fill="#fff" stroke="#c9d0d8"/>
+<text x="1050.0" y="502" font-size="11.5" font-weight="700" text-anchor="middle" fill="#0038FF">writes</text>
+<path d="M 860 600 L 900 600" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#a)"/>
+<text x="40" y="756" font-size="12" fill="#5b6672">Linux and Windows equivalents: LVM, setfacl, cron, ufw  /  VHDX, icacls, Task Scheduler, Windows Firewall (see README).</text>
+</svg>
