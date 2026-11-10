@@ -27,7 +27,7 @@ case "$ACTION" in
 PermitRootLogin no
 PermitEmptyPasswords no
 MaxAuthTries 3
-LoginGraceTime 30
+LoginGraceTime 60
 X11Forwarding no
 ClientAliveInterval 300
 ClientAliveCountMax 2
@@ -49,7 +49,14 @@ CONF
     echo "SSH hardening removed."
     ;;
   status)
-    /usr/sbin/sshd -T 2> /dev/null | grep -E '^(permitrootlogin|permitemptypasswords|maxauthtries|logingracetime|x11forwarding|clientaliveinterval|clientalivecountmax|allowusers) ' || true
+    out="$(/usr/sbin/sshd -T -C user=root,host=localhost,addr=127.0.0.1 2>&1 || true)"
+    if ! echo "$out" | grep -E '^(permitrootlogin|permitemptypasswords|maxauthtries|logingracetime|x11forwarding|clientaliveinterval|clientalivecountmax|allowusers) '; then
+      echo "sshd -T did not list the settings. Its output was:"
+      echo "$out" | head -n 5
+      echo
+      echo "Config file $DROPIN:"
+      cat "$DROPIN" 2> /dev/null || echo "(missing)"
+    fi
     ;;
   *)
     echo "Usage: sudo bash harden_ssh.sh apply|remove|status" >&2
