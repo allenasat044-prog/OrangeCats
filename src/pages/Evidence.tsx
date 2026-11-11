@@ -21,6 +21,12 @@ export default function Evidence() {
       </p>
 
       <section>
+        <h2>Architecture</h2>
+        <img src="/architecture.svg" alt="Architecture of the hospital IT server" style={{ width: "100%", height: "auto" }} />
+      </section>
+
+      <section>
+        <h2>Capture the evidence</h2>
         <pre>{collectCommand}</pre>
         <div className="row">
           <button className="btn ghost" onClick={copy}>{copied ? "Copied" : "Copy command"}</button>

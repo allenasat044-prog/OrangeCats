@@ -54,7 +54,7 @@ flowchart TD
   end
   collect["collect_evidence.sh<br/>29 checks"] -->|"reads real state"| server
   collect -->|"writes"| json["public/evidence.json"]
-  json -->|"fetched every 4 s"| web["Web console<br/>Landing, Dashboard, Analysis, Runbook, Evidence, FAQs"]
+  json -->|"fetched every 4 s"| web["Web console<br/>Landing, Sign in, Evidence, FAQs"]
   judges["Presenter and judges"] --> web
 ```
 
@@ -117,13 +117,13 @@ README.md                         this file
 docs/architecture.svg             architecture diagram, vector
 docs/architecture.png             architecture diagram, for slides
 linux/create_users.sh             Linux user and group script
-public/architecture.svg           diagram shown on the Analysis page
+public/architecture.svg           diagram shown on the Evidence page
 public/evidence.json              real terminal output, written by collect_evidence.sh
 src/App.tsx                       routes
 src/auth.tsx                      browser-only sign in
 src/data.ts                       stages, roles, folders, FAQs
 src/evidence.ts                   loads evidence.json
-src/pages/                        Landing, Auth, Dashboard, Analysis, Runbook, Evidence, FAQ
+src/pages/                        Landing, Auth, Evidence, FAQ
 src/components/                   Layout, Protected, ui/hero.tsx
 src/scripts/mac/create_users.sh        Stage 2: groups and users
 src/scripts/mac/remove_users.sh        Stage 2: undo
@@ -692,7 +692,7 @@ To test a role on Windows, run `runas /user:nurse_meera cmd` and try to write in
 
 ## Evidence page
 
-The console shows real terminal output. `collect_evidence.sh` runs 29 read-only checks on the Mac, one or more per stage. Each check records the command, its real output, the exit code and a PASS or FAIL result in `public/evidence.json`. The Evidence page reads that file and refreshes by itself every few seconds, and the Dashboard marks a stage as verified only when every check for it passed.
+The console shows real terminal output. `collect_evidence.sh` runs 29 read-only checks on the Mac, one or more per stage. Each check records the command, its real output, the exit code and a PASS or FAIL result in `public/evidence.json`. The Evidence page reads that file and refreshes by itself every few seconds, and shows a PASS or FAIL badge for every stage.
 
 ```
 sudo bash src/scripts/mac/collect_evidence.sh
@@ -774,7 +774,7 @@ sudo scutil --set LocalHostName hospital-srv01
 | # | Minutes | Say | Run | Expect |
 |---|---|---|---|---|
 | 1 | 1 | "One server, three roles, four building blocks." | Show `docs/architecture.png` with `open docs/architecture.png` | The architecture diagram |
-| 2 | 1 | "Who gets what is a matrix, and the ACLs are generated from it." | Open the Analysis page, set the checker to Nurses, writes, Patient Records | Permission denied |
+| 2 | 1 | "Who gets what is a matrix, and the ACLs are generated from it." | Show the Folder access table in this README | The table: nurses read patient records, administration has none |
 | 3 | 1 | "Three groups and six standard users. None of them is an administrator." | `id nurse_meera` then `dseditgroup -o checkmember -m nurse_meera admin` | `nurses` in the group list, then `no` |
 | 4 | 1 | "Storage is its own volume with ownership switched on, and each folder has ACL rules." | `ls -led /Volumes/hospital/patient-records` | Two ACL lines, nurses read and doctors read and write |
 | 5 | 2 | "Now the real thing, as each role." | The four commands below | Denied, allowed, read back, denied |

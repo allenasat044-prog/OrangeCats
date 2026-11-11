@@ -67,7 +67,7 @@ const stackFont = '"Arial Black", Impact, sans-serif';
 
 export const Component = () => {
   const { user } = useAuth();
-  const entry = user ? "/dashboard" : "/auth";
+  const entry = user ? "/evidence" : "/auth";
 
   return (
     <div className="min-h-screen bg-[#0038FF] flex flex-col font-sans selection:bg-[#CCFF00] selection:text-black relative overflow-hidden w-full">
@@ -86,9 +86,6 @@ export const Component = () => {
 
         <div className="hidden md:flex items-center space-x-2">
           {[
-            { label: "Dashboard", to: "/dashboard" },
-            { label: "Analysis", to: "/analysis" },
-            { label: "Runbook", to: "/runbook" },
             { label: "Evidence", to: "/evidence" },
             { label: "FAQs", to: "/faq" },
           ].map((item) => (

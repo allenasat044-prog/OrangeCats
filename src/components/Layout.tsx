@@ -13,14 +13,7 @@ export default function Layout() {
           <span className="logo-b">IT</span>
         </Link>
         <nav>
-          {user && (
-            <>
-              <NavLink to="/dashboard">Dashboard</NavLink>
-              <NavLink to="/analysis">Analysis</NavLink>
-              <NavLink to="/runbook">Runbook</NavLink>
-              <NavLink to="/evidence">Evidence</NavLink>
-            </>
-          )}
+          {user && <NavLink to="/evidence">Evidence</NavLink>}
           <NavLink to="/faq">FAQs</NavLink>
           {user ? (
             <button

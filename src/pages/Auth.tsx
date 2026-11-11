@@ -12,7 +12,7 @@ export default function Auth() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) return <Navigate to="/evidence" replace />;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -20,7 +20,7 @@ export default function Auth() {
     const result = mode === "signin" ? await signIn(email, password) : await signUp(name, email, password);
     setBusy(false);
     if (result) setError(result);
-    else navigate("/dashboard");
+    else navigate("/evidence");
   };
 
   return (
