@@ -4,6 +4,17 @@ A hospital IT department needs one server for doctors, nurses and administration
 
 ![Architecture of the hospital IT server](docs/architecture.png)
 
+### 📄 Project Documents
+
+| Document | Link |
+|----------|------|
+| 📘 Project Report | [Project-Report.pdf](./hs-report.pdf) |
+| 🎞️ Project Presentation (PDF) | [Project-Presentation.pdf](./hs-ppt.pdf) |
+| 🎨 Project Presentation (Canva) | [View on Canva](https://canva.link/dn9qgcm42wbiu5z) |
+
+---
+
+
 ## Contents
 
 1. [At a glance](#at-a-glance)
