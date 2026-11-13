@@ -20,7 +20,7 @@
 | 📘 Project Report | [Project-Report.pdf](hs-report.pdf) |
 | 🎞️ Presentation (PDF) | [Project-Presentation.pdf](hs-ppt.pdf) |
 | 🎨 Presentation (Canva) | [View on Canva](https://canva.link/dn9qgcm42wbiu5z) |
-| Repo Arc | [Repo Arch](./Orange-Cats.png) |
+| Repo Arc | [Repo Arch](Orange-Cats .png) |
 
 ---
 
