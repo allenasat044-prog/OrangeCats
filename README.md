@@ -35,11 +35,11 @@
 7. [Storage Management / LVM / Backup and Recovery](#7-storage-management--lvm--backup-and-recovery)
 8. [Automation and Shell Scripting](#8-automation-and-shell-scripting)
 9. [Security and User/Permission Management](#9-security-and-userpermission-management)
-10. [Testing, Results and Observations](##-11-Challenges-Faced-and-Solutions)
-11. [Challenges Faced and Solutions](#12-challenges-faced-and-solutions)
-12. [Conclusion and Future Enhancements](#13-conclusion-and-future-enhancements)
-13. [References](#14-references)
-14. [Appendix: Repository Layout, Setup and Undo](#15-appendix-repository-layout-setup-and-undo)
+10. [Testing, Results and Observations](##-10-Challenges-Faced-and-Solutions)
+11. [Challenges Faced and Solutions](#11-challenges-faced-and-solutions)
+12. [Conclusion and Future Enhancements](#12-conclusion-and-future-enhancements)
+13. [References](#13-references)
+14. [Appendix: Repository Layout, Setup and Undo](#14-appendix-repository-layout-setup-and-undo)
 
 ---
 
