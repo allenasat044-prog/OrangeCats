@@ -35,7 +35,7 @@
 7. [Storage Management / LVM / Backup and Recovery](#7-storage-management--lvm--backup-and-recovery)
 8. [Automation and Shell Scripting](#8-automation-and-shell-scripting)
 9. [Security and User/Permission Management](#9-security-and-userpermission-management)
-10. [Testing, Results and Observations](#11-testing-results-and-observations)
+10. [Testing, Results and Observations](##-11-Challenges-Faced-and-Solutions)
 11. [Challenges Faced and Solutions](#12-challenges-faced-and-solutions)
 12. [Conclusion and Future Enhancements](#13-conclusion-and-future-enhancements)
 13. [References](#14-references)
