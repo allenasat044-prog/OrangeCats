@@ -436,37 +436,6 @@ On macOS, `harden_ssh.sh apply` applies equivalent settings and also adds the us
 
 ---
 
-## 10. Implementation Screenshots and Live Demonstration
-
-> 📸 **Add your screenshots to `docs/screenshots/` and update the file names below.** The placeholders show what each screenshot should capture.
-
-| # | What to show | Screenshot |
-|---|---|---|
-| 1 | Landing page of the web console | `![Landing](docs/screenshots/01-landing.png)` |
-| 2 | Users and groups (`id nurse_meera`, group membership) | `![Users](docs/screenshots/02-users.png)` |
-| 3 | Storage volume mounted, `ls -led` showing ACLs | `![Storage](docs/screenshots/03-storage.png)` |
-| 4 | Nurse denied writing to `patient-records` | `![Denied](docs/screenshots/04-permission-denied.png)` |
-| 5 | Backup run, checksum verified | `![Backup](docs/screenshots/05-backup.png)` |
-| 6 | Delete + restore of `patient-records` | `![Restore](docs/screenshots/06-restore.png)` |
-| 7 | Firewall status and root SSH denied | `![Security](docs/screenshots/07-security.png)` |
-| 8 | Permission audit: *All checks passed* | `![Audit](docs/screenshots/08-audit.png)` |
-| 9 | Evidence page with PASS badges for all stages | `![Evidence](docs/screenshots/09-evidence.png)` |
-
-### Live demonstration (about 12 minutes)
-
-| # | Min | What to say | Run | Expected |
-|---|---|---|---|---|
-| 1 | 1 | One server, three roles, four building blocks | Show `docs/architecture.png` | Architecture diagram |
-| 2 | 1 | Access is a matrix; ACLs come from it | Show Folder access table | Nurses read records, admin none |
-| 3 | 1 | Three groups, six standard users | `id nurse_meera`, then `dseditgroup -o checkmember -m nurse_meera admin` | `nurses` group, then `no` |
-| 4 | 1 | Own volume with ACL rules | `ls -led /Volumes/hospital/patient-records` | Two ACL lines |
-| 5 | 2 | Real permissions per role | Four commands below | Denied, allowed, read, denied |
-| 6 | 1 | All users × all folders | `sudo bash src/scripts/mac/role_tests.sh` | `ok` in every cell |
-| 7 | 1 | Trigger and verify a backup | `kickstart`, `tail`, `hospital_verify.sh` | Checksum OK |
-| 8 | 2 | Disaster: delete patient records | Delete/restore commands | Restored with permissions |
-| 9 | 1 | Disk warning at 80% (lowered to demo) | `hospital_disk_check.sh 1` | WARNING lines |
-| 10 | 1 | Firewall, root SSH, audit | Security commands | Root denied, all checks passed |
-| 11 | 1 | Everything is recorded as evidence | Open Evidence page | PASS badges |
 
 **Step 5, live permissions:**
 
