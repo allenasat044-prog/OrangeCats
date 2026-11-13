@@ -35,12 +35,11 @@
 7. [Storage Management / LVM / Backup and Recovery](#7-storage-management--lvm--backup-and-recovery)
 8. [Automation and Shell Scripting](#8-automation-and-shell-scripting)
 9. [Security and User/Permission Management](#9-security-and-userpermission-management)
-10. [Implementation Screenshots and Live Demonstration](#10-implementation-screenshots-and-live-demonstration)
-11. [Testing, Results and Observations](#11-testing-results-and-observations)
-12. [Challenges Faced and Solutions](#12-challenges-faced-and-solutions)
-13. [Conclusion and Future Enhancements](#13-conclusion-and-future-enhancements)
-14. [References](#14-references)
-15. [Appendix: Repository Layout, Setup and Undo](#15-appendix-repository-layout-setup-and-undo)
+10. [Testing, Results and Observations](#11-testing-results-and-observations)
+11. [Challenges Faced and Solutions](#12-challenges-faced-and-solutions)
+12. [Conclusion and Future Enhancements](#13-conclusion-and-future-enhancements)
+13. [References](#14-references)
+14. [Appendix: Repository Layout, Setup and Undo](#15-appendix-repository-layout-setup-and-undo)
 
 ---
 
@@ -465,9 +464,9 @@ npm run dev        # open http://localhost:5173
 
 ---
 
-## 11. Testing, Results and Observations
+## 10. Testing, Results and Observations
 
-### 11.1 Test plan and results
+### 10.1 Test plan and results
 
 | Test | Method | Expected result | Result |
 |---|---|---|---|
@@ -487,14 +486,14 @@ npm run dev        # open http://localhost:5173
 
 > ✏️ Replace the Result column with your own measured outputs and screenshots from your final demo run.
 
-### 11.2 Observations
+### 10.2 Observations
 
 - ACL-based permissions gave **finer control** than plain `chmod`, since one folder can serve three groups differently.
 - Computing a **checksum immediately after backup** and **again before restore** catches corrupted archives early.
 - Making the console read a **JSON evidence file** (instead of trying to execute commands in the browser) keeps the UI safe and the evidence honest.
 - The firewall's **automatic rollback** removed the risk of locking out the administrator.
 
-### 11.3 Verification status and known limits
+### 10.3 Verification status and known limits
 
 | Item | Status |
 |---|---|
@@ -514,7 +513,7 @@ npm run dev        # open http://localhost:5173
 
 ---
 
-## 12. Challenges Faced and Solutions
+## 11. Challenges Faced and Solutions
 
 | Challenge | Cause | Solution |
 |---|---|---|
@@ -531,7 +530,7 @@ npm run dev        # open http://localhost:5173
 
 ---
 
-## 13. Conclusion and Future Enhancements
+## 12. Conclusion and Future Enhancements
 
 ### Conclusion
 
@@ -551,7 +550,7 @@ The Hospital IT Server Console delivers a complete, repeatable server build for 
 
 ---
 
-## 14. References
+## 13. References
 
 1. Apple, *Mac Terminal User Guide* and man pages: `dscl`, `dseditgroup`, `chmod` (ACLs), `hdiutil`, `launchctl`, `pfctl`, `scutil`, `systemsetup`.
 2. Apple, *Creating Launch Daemons and Agents* (`launchd.plist`).
@@ -565,7 +564,7 @@ The Hospital IT Server Console delivers a complete, repeatable server build for 
 
 ---
 
-## 15. Appendix: Repository Layout, Setup and Undo
+## 14. Appendix: Repository Layout, Setup and Undo
 
 ### Repository layout
 
@@ -630,9 +629,6 @@ sudo scutil --set HostName "$(cat ~/hospital-setup/original_localhostname.txt)"
 sudo scutil --set LocalHostName "$(cat ~/hospital-setup/original_localhostname.txt)"
 ```
 
-### ⚠️ Security note
-
-This is a **demo build**. The sample users share one password, and SSH is reachable from the local network while Remote Login is on. Use a strong password on shared networks and run the undo steps when finished.
 
 ---
 
